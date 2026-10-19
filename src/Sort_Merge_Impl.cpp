@@ -1,87 +1,63 @@
-// 归并排序 递归
-/*
-通过不断的将两个有序的数组进行合并，最终得到一个有序的数组
-*/
+//归并排序 递归
 
-#include <iostream>
-#include <vector>
+#include<iostream>
+#include<vector>
+
 using namespace std;
 
-// merge：合并两个相邻的有序区间
-//   左区间：[left, mid]
-//   右区间：[mid + 1, right]
-// 合并结果先写入 tmp，再整体拷回 a
+void merge(vector<int>& nums, vector<int>& tmp, int l, int mid, int r){
+  int i = l;
+  int j = mid + 1;
+  int k = l;
 
-void merge(vector<int> &a, vector<int> &tmp, int left, int mid, int right) {
-  int i = left;    // 左区间当前指针
-  int j = mid + 1; // 右区间当前指针
-  int k = left;    // 临时数组写入位置
-
-  // 1. 两个区间都还有元素时，取较小者放入 tmp
-  while (i <= mid && j <= right) {
-    if (a[i] <= a[j]) {
-      tmp[k++] = a[i++]; // 左边更小（<= 保证稳定性）
-    } else {
-      tmp[k++] = a[j++]; // 右边更小
-    }
+  while(i <= mid && j <= r){
+    if(nums[i] <= nums[j])
+      tmp[k++] = nums[i++];
+    else
+      tmp[k++] = nums[j++];
   }
 
-  // 2. 左区间剩余元素直接搬过去
-  while (i <= mid) {
-    tmp[k++] = a[i++];
+  while(i <= mid){
+    tmp[k++] = nums[i++];
   }
 
-  // 3. 右区间剩余元素直接搬过去
-  while (j <= right) {
-    tmp[k++] = a[j++];
+  while(j <= r){
+    tmp[k++] = nums[j++];
   }
 
-  // 4. 把合并好的结果从 tmp 拷回原数组
-  for (int p = left; p <= right; ++p) {
-    a[p] = tmp[p];
-  }
+  for(int p = l; p <= r; ++p)
+    nums[p] = tmp[p];
+
 }
 
-// mergeSortImpl：递归排序区间 [left, right]
+void mergeSortImpl(vector<int>& nums, vector<int>& tmp, int l, int r){
+  if(l >= r) return;
 
-void mergeSortImpl(vector<int> &a, vector<int> &tmp, int left, int right) {
-  // 递归终止条件：区间只有一个元素（或为空），天然有序
-  if (left >= right) {
-    return;
-  }
+  int mid = l + (r-l) / 2;
 
-  // 取中点，拆分区间（这样写可防止 left + right 溢出）
-  int mid = left + (right - left) / 2;
+  mergeSortImpl(nums, tmp, l, mid);
+  mergeSortImpl(nums, tmp, mid+1, r);
 
-  // 递归排序左半部分
-  mergeSortImpl(a, tmp, left, mid);
-
-  // 递归排序右半部分
-  mergeSortImpl(a, tmp, mid + 1, right);
-
-  // 合并两个已排好序的半区间
-  merge(a, tmp, left, mid, right);
+  merge(nums, tmp, l, mid, r);
 }
 
-// mergeSort：对外接口
+void mergeSort(vector<int>& nums){
+  int n = nums.size();
+  if(n <= 1) return;
 
-void mergeSort(vector<int> &a) {
-  if (a.size() < 2) {
-    return;
-  }
-  vector<int> tmp(a.size()); // 临时数组，只分配一次
-  mergeSortImpl(a, tmp, 0, (int)a.size() - 1);
+  vector<int> tmp(n);
+  mergeSortImpl(nums, tmp, 0, n-1);
+
 }
 
-int main() {
-  vector<int> v = {5, 2, 9, 1, 5, 6, 3, 8, 0, 7};
+int main(){
 
-  mergeSort(v);
+  vector<int> nums = {1,6,3,9,3,0,-4,-6,35,9};
+  
+  mergeSort(nums);
 
-  for (int x : v) {
-    cout << x << ' ';
-  }
-  cout << '\n';
-
+  for(int i : nums)
+    cout << i << ' ';
+  cout << endl;
   return 0;
 }
